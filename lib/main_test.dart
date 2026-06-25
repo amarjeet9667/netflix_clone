@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'app.dart';
 import 'core/config/app_config.dart';
-import 'injection/injection_container.dart' as di;
+import 'package:netflix_clone/indections/injection_container.dart' as di;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
