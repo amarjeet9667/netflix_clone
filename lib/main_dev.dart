@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:netflix_clone/indections/injection_container.dart' as di;
+import 'package:netflix_clone/injections/injection_container.dart' as di;
 
 import 'app.dart';
 import 'core/config/app_config.dart';

@@ -11,6 +11,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../constants/app_constants.dart';
+import '../../../core/services/storage_service.dart';
+import '../../../injections/injection_container.dart';
 
 class AuthInterceptor extends Interceptor {
   // Lazy Dio instance for refresh call (avoids circular dep)
@@ -66,20 +68,26 @@ class AuthInterceptor extends Interceptor {
 
   // ── Private helpers ──────────────────────────────────────
   String? _getToken() {
-    // TODO: replace with your StorageService / Hive read
-    // return sl<StorageService>().getString(AppConstants.kAuthToken);
-    return null;
+    try {
+      return sl<StorageService>().getString(AppConstants.kAuthToken);
+    } catch (_) {
+      return null;
+    }
   }
 
   String? _getRefreshToken() {
-    // TODO: return sl<StorageService>().getString(AppConstants.kRefreshToken);
-    return null;
+    try {
+      return sl<StorageService>().getString(AppConstants.kRefreshToken);
+    } catch (_) {
+      return null;
+    }
   }
 
   void _clearAuthData() {
-    // TODO: sl<StorageService>().remove(AppConstants.kAuthToken);
-    // TODO: sl<StorageService>().remove(AppConstants.kRefreshToken);
-    // TODO: navigate to login via AppRouter
+    try {
+      sl<StorageService>().remove(AppConstants.kAuthToken);
+      sl<StorageService>().remove(AppConstants.kRefreshToken);
+    } catch (_) {}
     debugPrint('⚠️  AuthInterceptor: cleared auth — redirecting to login');
   }
 
@@ -98,7 +106,9 @@ class AuthInterceptor extends Interceptor {
 
     final newToken = response.data?['token'] as String?;
     if (newToken != null) {
-      // TODO: sl<StorageService>().setString(AppConstants.kAuthToken, newToken);
+      try {
+        sl<StorageService>().setString(AppConstants.kAuthToken, newToken);
+      } catch (_) {}
       debugPrint('✅ AuthInterceptor: token refreshed');
     }
     return newToken;
