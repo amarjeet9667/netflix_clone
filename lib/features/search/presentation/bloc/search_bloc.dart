@@ -1,15 +1,24 @@
 // lib/features/search/presentation/bloc/search_bloc.dart
+import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:stream_transform/stream_transform.dart';
 
-import 'package:netflix_clone/features/search/domain/entities/search_result_entity.dart';
-import 'package:netflix_clone/features/search/domain/entities/genre_entity.dart';
-import 'package:netflix_clone/features/search/domain/usecases/search_content_usecase.dart';
-import 'package:netflix_clone/features/search/domain/usecases/get_genre_list_usecase.dart';
 import 'package:netflix_clone/core/constants/app_constants.dart';
+import '../../domain/entities/search_result_entity.dart';
+import '../../domain/entities/genre_entity.dart';
+import '../../domain/usecases/search_content_usecase.dart';
+import '../../domain/usecases/get_genre_list_usecase.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
+
+// ── Debounce transformer ───────────────────────────────────────
+// Requires `stream_transform` package (lightweight, no rxdart needed):
+//   stream_transform: ^2.1.0
+EventTransformer<E> _debounce<E>(Duration duration) {
+  return (events, mapper) => events.debounce(duration).switchMap(mapper);
+}
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final SearchContentUseCase searchContent;
@@ -21,10 +30,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }) : super(const SearchInitial()) {
     on<SearchQueryChangedEvent>(
       _onQueryChanged,
-      // Debounce — only fires 400ms after user stops typing
-      transformer: (events, mapper) => events
-          .debounceTime(const Duration(milliseconds: 400))
-          .switchMap(mapper),
+      transformer: _debounce(const Duration(milliseconds: 400)),
     );
     on<SearchFetchGenresEvent>(_onFetchGenres);
     on<SearchClearEvent>(_onClear);
@@ -46,9 +52,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     emit(const SearchLoading());
 
-    final result = await searchContent(
-      SearchParams(query: query),
-    );
+    final result = await searchContent(SearchParams(query: query));
 
     result.fold(
       (failure) => emit(SearchError(message: failure.message)),

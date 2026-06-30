@@ -1,3 +1,4 @@
+// lib/features/tv_shows/domain/entities/episode_entity.dart
 import 'package:equatable/equatable.dart';
 
 class EpisodeEntity extends Equatable {
@@ -7,10 +8,10 @@ class EpisodeEntity extends Equatable {
   final int episodeNumber;
   final String title;
   final String overview;
-  final int duration;
+  final int duration; // minutes
   final String stillUrl;
   final bool hasBeenWatched;
-  final double watchProgress;
+  final double watchProgress; // 0.0 – 1.0
 
   const EpisodeEntity({
     required this.id,
@@ -25,32 +26,48 @@ class EpisodeEntity extends Equatable {
     required this.watchProgress,
   });
 
-  factory EpisodeEntity.fromJson(Map<String, dynamic> json) {
+  bool get isInProgress =>
+      hasBeenWatched && watchProgress > 0 && watchProgress < 1.0;
+
+  String get durationLabel => '${duration}m';
+
+  EpisodeEntity copyWith({
+    String? id,
+    String? seasonId,
+    int? showId,
+    int? episodeNumber,
+    String? title,
+    String? overview,
+    int? duration,
+    String? stillUrl,
+    bool? hasBeenWatched,
+    double? watchProgress,
+  }) {
     return EpisodeEntity(
-      id: json['id']?.toString() ?? '',
-      seasonId: json['seasonId']?.toString() ?? '',
-      showId: json['showId'] as int? ?? 0,
-      episodeNumber: json['episodeNumber'] as int? ?? 0,
-      title: json['title'] as String? ?? '',
-      overview: json['overview'] as String? ?? '',
-      duration: json['duration'] as int? ?? 0,
-      stillUrl: json['stillUrl'] as String? ?? '',
-      hasBeenWatched: json['hasBeenWatched'] as bool? ?? false,
-      watchProgress: (json['watchProgress'] as num?)?.toDouble() ?? 0.0,
+      id: id ?? this.id,
+      seasonId: seasonId ?? this.seasonId,
+      showId: showId ?? this.showId,
+      episodeNumber: episodeNumber ?? this.episodeNumber,
+      title: title ?? this.title,
+      overview: overview ?? this.overview,
+      duration: duration ?? this.duration,
+      stillUrl: stillUrl ?? this.stillUrl,
+      hasBeenWatched: hasBeenWatched ?? this.hasBeenWatched,
+      watchProgress: watchProgress ?? this.watchProgress,
     );
   }
 
   @override
   List<Object?> get props => [
-        id,
-        seasonId,
-        showId,
-        episodeNumber,
-        title,
-        overview,
-        duration,
-        stillUrl,
-        hasBeenWatched,
-        watchProgress,
-      ];
+    id,
+    seasonId,
+    showId,
+    episodeNumber,
+    title,
+    overview,
+    duration,
+    stillUrl,
+    hasBeenWatched,
+    watchProgress,
+  ];
 }

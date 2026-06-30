@@ -6,8 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:netflix_clone/core/constants/app_colors.dart';
 import 'package:netflix_clone/core/constants/app_sizes.dart';
 import 'package:netflix_clone/core/constants/app_text_style.dart';
-// ✅ Fixed: was 'app_text_style.dart' — correct name is 'app_text_styles.dart'
-import 'package:netflix_clone/core/constants/app_text_styles.dart';
 import 'package:netflix_clone/core/constants/app_strings.dart';
 import 'package:netflix_clone/core/router/route_names.dart';
 import '../../domain/entities/notification_entity.dart';

@@ -1,11 +1,11 @@
-import 'package:bloc/bloc.dart';
+// lib/features/tv_shows/presentation/bloc/tvshow_bloc.dart
 import 'package:equatable/equatable.dart';
-import 'package:netflix_clone/core/dummy/dummy_data.dart';
-import '../../domain/entities/tvshow_entity.dart';
-import '../../domain/entities/season_entity.dart';
-import '../../domain/entities/episode_entity.dart';
-import '../../domain/usecases/get_tv_shows_usecase.dart';
-import '../../domain/usecases/get_episodes_usecase.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:netflix_clone/features/tv_shows/domain/entities/series_entity.dart';
+import 'package:netflix_clone/features/tv_shows/domain/entities/episode_entity.dart';
+import 'package:netflix_clone/features/tv_shows/domain/usecases/get_tv_shows_usecase.dart';
+import 'package:netflix_clone/features/tv_shows/domain/usecases/get_episodes_usecase.dart';
 
 part 'tvshow_event.dart';
 part 'tvshow_state.dart';
@@ -14,44 +14,90 @@ class TVShowBloc extends Bloc<TVShowEvent, TVShowState> {
   final GetTVShowsUseCase getTVShows;
   final GetEpisodesUseCase getEpisodes;
 
-  TVShowBloc({
-    required this.getTVShows,
-    required this.getEpisodes,
-  }) : super(TVShowInitial()) {
-    on<LoadTVShowsEvent>(_onLoadTVShows);
-    on<LoadTVShowDetailEvent>(_onLoadTVShowDetail);
+  TVShowBloc({required this.getTVShows, required this.getEpisodes})
+    : super(const TVShowInitial()) {
+    on<TVShowFetchAllEvent>(_onFetchAll);
+    on<TVShowFetchDetailEvent>(_onFetchDetail);
+    on<TVShowFetchEpisodesEvent>(_onFetchEpisodes);
+    on<TVShowSelectSeasonEvent>(_onSelectSeason);
   }
 
-  Future<void> _onLoadTVShows(LoadTVShowsEvent event, Emitter<TVShowState> emit) async {
-    emit(TVShowLoading());
+  Future<void> _onFetchAll(
+    TVShowFetchAllEvent event,
+    Emitter<TVShowState> emit,
+  ) async {
+    emit(const TVShowLoading());
     final result = await getTVShows();
     result.fold(
-      (failure) => emit(TVShowError(failure.message)),
-      (shows) => emit(TVShowLoaded(shows)),
+      (failure) => emit(TVShowError(message: failure.message)),
+      (shows) => emit(TVShowListLoaded(shows: shows)),
     );
   }
 
-  Future<void> _onLoadTVShowDetail(LoadTVShowDetailEvent event, Emitter<TVShowState> emit) async {
-    emit(TVShowLoading());
-    final episodesResult = await getEpisodes(showId: event.showId, seasonNumber: 1);
+  Future<void> _onFetchDetail(
+    TVShowFetchDetailEvent event,
+    Emitter<TVShowState> emit,
+  ) async {
+    emit(const TVShowLoading());
+    final showResult = await getTVShows();
+    showResult.fold((failure) => emit(TVShowError(message: failure.message)), (
+      shows,
+    ) async {
+      try {
+        final show = shows.firstWhere((s) => s.id.toString() == event.showId);
+        final epResult = await getEpisodes(
+          EpisodesParams(showId: event.showId, seasonNumber: 1),
+        );
+        epResult.fold(
+          (failure) => emit(TVShowDetailLoaded(show: show, episodes: [])),
+          (episodes) =>
+              emit(TVShowDetailLoaded(show: show, episodes: episodes)),
+        );
+      } catch (_) {
+        emit(TVShowError(message: 'Show not found.'));
+      }
+    });
+  }
 
-    episodesResult.fold(
-      (failure) => emit(TVShowError(failure.message)),
-      (episodes) {
-        final mockShow = DummyTVShows.shows.firstWhere(
-          (s) => s['id'] == event.showId,
-          orElse: () => DummyTVShows.shows.first,
-        );
-        final mockSeason = DummyTVShows.seasons.firstWhere(
-          (s) => s['showId'] == event.showId && s['seasonNumber'] == 1,
-          orElse: () => DummyTVShows.seasons.first,
-        );
-        emit(TVShowDetailLoaded(
-          show: TVShowEntity.fromJson(mockShow),
-          seasonDetail: SeasonEntity.fromJson(mockSeason),
+  Future<void> _onFetchEpisodes(
+    TVShowFetchEpisodesEvent event,
+    Emitter<TVShowState> emit,
+  ) async {
+    if (state is! TVShowDetailLoaded) return;
+    final current = state as TVShowDetailLoaded;
+    final result = await getEpisodes(
+      EpisodesParams(showId: event.showId, seasonNumber: event.seasonNumber),
+    );
+    result.fold(
+      (_) => null,
+      (episodes) => emit(
+        TVShowDetailLoaded(
+          show: current.show,
           episodes: episodes,
-        ));
-      },
+          selectedSeason: event.seasonNumber,
+        ),
+      ),
+    );
+  }
+
+  void _onSelectSeason(
+    TVShowSelectSeasonEvent event,
+    Emitter<TVShowState> emit,
+  ) {
+    if (state is! TVShowDetailLoaded) return;
+    final current = state as TVShowDetailLoaded;
+    emit(
+      TVShowDetailLoaded(
+        show: current.show,
+        episodes: current.episodes,
+        selectedSeason: event.seasonNumber,
+      ),
+    );
+    add(
+      TVShowFetchEpisodesEvent(
+        showId: current.show.id.toString(),
+        seasonNumber: event.seasonNumber,
+      ),
     );
   }
 }
