@@ -1,5 +1,4 @@
 // lib/features/watchlist/presentation/bloc/watchlist_bloc.dart
-import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

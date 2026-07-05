@@ -8,82 +8,138 @@ import 'package:netflix_clone/core/constants/app_sizes.dart';
 import 'package:netflix_clone/core/constants/app_text_style.dart';
 import 'package:netflix_clone/core/constants/app_strings.dart';
 import 'package:netflix_clone/core/router/route_names.dart';
-import 'package:netflix_clone/core/dummy/dummy_data.dart';
+import '../../domain/entities/profile_entity.dart';
+import '../bloc/profile_bloc.dart';
 
-class WhoIsWatchingPage extends StatelessWidget {
+class WhoIsWatchingPage extends StatefulWidget {
   const WhoIsWatchingPage({super.key});
+  @override
+  State<WhoIsWatchingPage> createState() => _WhoIsWatchingPageState();
+}
+
+class _WhoIsWatchingPageState extends State<WhoIsWatchingPage> {
+  @override
+  void initState() {
+    super.initState();
+    // ✅ BLoC-driven fetch
+    context.read<ProfileBloc>().add(const ProfileFetchAllEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
-    final profiles = DummyUsers.profiles;
-
     return Scaffold(
       backgroundColor: AppColors.bgPrimary,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Top bar
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSizes.screenPaddingH,
-                vertical:   AppSizes.spaceXL,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'NETFLIX',
-                    style: AppTextStyles.titleLarge.copyWith(
-                      color:         AppColors.netflixRed,
-                      fontWeight:    FontWeight.w900,
-                      letterSpacing: 2,
+        child: BlocConsumer<ProfileBloc, ProfileState>(
+          listener: (context, state) {
+            // Navigate to home once a profile is selected
+            if (state is ProfileActive) {
+              context.go(RouteNames.home);
+            }
+          },
+          builder: (context, state) {
+            if (state is ProfileLoading) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppColors.netflixRed),
+              );
+            }
+
+            if (state is ProfileError) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: AppColors.textTertiary,
+                      size: 56,
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () => context.go(
-                      '${RouteNames.whoIsWatching}/manage',
-                    ),
-                    child: Text(
-                      AppStrings.manageProfiles,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textPrimary,
+                    const SizedBox(height: AppSizes.spaceMD),
+                    Text(state.message, style: AppTextStyles.bodyMedium),
+                    const SizedBox(height: AppSizes.spaceMD),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.netflixRed,
                       ),
+                      onPressed: () => context.read<ProfileBloc>().add(
+                        const ProfileFetchAllEvent(),
+                      ),
+                      child: const Text('Retry'),
                     ),
-                  ),
-                ],
-              ),
-            ),
+                  ],
+                ),
+              );
+            }
 
-            const Spacer(),
+            final profiles = state is ProfileListLoaded
+                ? state.profiles
+                : <ProfileEntity>[];
 
-            // Title
-            Text(
-              AppStrings.whoIsWatching,
-              style: AppTextStyles.headlineMedium,
-            ),
-            const SizedBox(height: AppSizes.space3XL),
-
-            // Profile grid
-            Wrap(
-              spacing:     AppSizes.spaceXL,
-              runSpacing:  AppSizes.spaceXL,
-              alignment:   WrapAlignment.center,
+            return Column(
               children: [
-                ...profiles.map((p) => _ProfileTile(
-                  profile:  p,
-                  onTap: () => context.go(RouteNames.home),
-                )),
-                // Add profile
-                _AddProfileTile(
-                  onTap: () => context.go(
-                    '${RouteNames.whoIsWatching}/edit',
+                // ── Top bar ────────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSizes.screenPaddingH,
+                    vertical: AppSizes.spaceXL,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'NETFLIX',
+                        style: AppTextStyles.titleLarge.copyWith(
+                          color: AppColors.netflixRed,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => context.go(RouteNames.manageProfiles),
+                        child: Text(
+                          AppStrings.manageProfiles,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
 
-            const Spacer(),
-          ],
+                const Spacer(),
+
+                Text(
+                  AppStrings.whoIsWatching,
+                  style: AppTextStyles.headlineMedium,
+                ),
+                const SizedBox(height: AppSizes.space3XL),
+
+                // ── Profile grid ───────────────────────────
+                Wrap(
+                  spacing: AppSizes.spaceXL,
+                  runSpacing: AppSizes.spaceXL,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    ...profiles.map(
+                      (p) => _ProfileTile(
+                        profile: p,
+                        onTap: () => context.read<ProfileBloc>().add(
+                          ProfileSelectEvent(profileId: p.id),
+                        ),
+                      ),
+                    ),
+                    if (profiles.length < 5)
+                      _AddProfileTile(
+                        onTap: () => context.go(RouteNames.editProfile),
+                      ),
+                  ],
+                ),
+
+                const Spacer(),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -91,7 +147,7 @@ class WhoIsWatchingPage extends StatelessWidget {
 }
 
 class _ProfileTile extends StatelessWidget {
-  final Map<String, dynamic> profile;
+  final ProfileEntity profile;
   final VoidCallback onTap;
   const _ProfileTile({required this.profile, required this.onTap});
 
@@ -103,38 +159,54 @@ class _ProfileTile extends StatelessWidget {
         width: AppSizes.avatarXL,
         child: Column(
           children: [
-            // Avatar
             Container(
-              width:        AppSizes.avatarXL,
-              height:       AppSizes.avatarXL,
+              width: AppSizes.avatarXL,
+              height: AppSizes.avatarXL,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-                border: Border.all(color: Colors.transparent, width: 2),
               ),
               clipBehavior: Clip.antiAlias,
               child: Image.network(
-                profile['avatar'] as String,
+                profile.avatarUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
                   color: AppColors.bgTertiary,
                   child: const Icon(
                     Icons.person,
                     color: AppColors.textSecondary,
-                    size:  48,
+                    size: 48,
                   ),
                 ),
               ),
             ),
             const SizedBox(height: AppSizes.spaceSM),
             Text(
-              profile['name'] as String,
+              profile.name,
               style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.textSecondary,
               ),
-              maxLines:  1,
-              overflow:  TextOverflow.ellipsis,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
             ),
+            if (profile.isKids)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSizes.spaceXXS),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.textTertiary),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusXS),
+                  ),
+                  child: Text(
+                    AppStrings.kidsProfile,
+                    style: AppTextStyles.micro,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -155,7 +227,7 @@ class _AddProfileTile extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              width:  AppSizes.avatarXL,
+              width: AppSizes.avatarXL,
               height: AppSizes.avatarXL,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppSizes.radiusMD),
@@ -164,7 +236,7 @@ class _AddProfileTile extends StatelessWidget {
               child: const Icon(
                 Icons.add,
                 color: AppColors.textTertiary,
-                size:  40,
+                size: 40,
               ),
             ),
             const SizedBox(height: AppSizes.spaceSM),

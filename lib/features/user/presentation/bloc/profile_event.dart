@@ -22,11 +22,11 @@ class ProfileSelectEvent extends ProfileEvent {
 
 /// Save edits to the active profile
 class ProfileUpdateEvent extends ProfileEvent {
-  final String  profileId;
-  final String  name;
+  final String profileId;
+  final String name;
   final String? avatarUrl;
-  final bool    isKids;
-  final String  maturityRating;
+  final bool isKids;
+  final String maturityRating;
   const ProfileUpdateEvent({
     required this.profileId,
     required this.name,
@@ -35,14 +35,20 @@ class ProfileUpdateEvent extends ProfileEvent {
     required this.maturityRating,
   });
   @override
-  List<Object?> get props => [profileId, name, avatarUrl, isKids, maturityRating];
+  List<Object?> get props => [
+    profileId,
+    name,
+    avatarUrl,
+    isKids,
+    maturityRating,
+  ];
 }
 
 /// Create a new profile
 class ProfileCreateEvent extends ProfileEvent {
-  final String  name;
+  final String name;
   final String? avatarUrl;
-  final bool    isKids;
+  final bool isKids;
   const ProfileCreateEvent({
     required this.name,
     this.avatarUrl,

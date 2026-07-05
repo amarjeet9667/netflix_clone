@@ -134,7 +134,7 @@ class DownloadRepositoryImpl implements DownloadRepository {
       );
 
       final isDone  = progress >= 1.0;
-      final updated = (match as DownloadModel).copyWith(
+      final updated = match.copyWith(
         progress:     progress,
         status:       isDone ? DownloadStatus.completed : DownloadStatus.downloading,
         downloadedAt: isDone ? DateTime.now() : null,

@@ -1,4 +1,3 @@
-import 'package:netflix_clone/core/config/app_config.dart';
 import 'package:netflix_clone/core/networks/api_client.dart';
 import 'package:netflix_clone/core/dummy/dummy_data.dart';
 import '../models/movie_model.dart';

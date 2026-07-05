@@ -67,7 +67,9 @@ class AppRouter {
 
       if (!_isLoggedIn && !isAuthRoute) return RouteNames.login;
       if (_isLoggedIn && !_hasPickedProfile &&
-          path != RouteNames.whoIsWatching) {
+          path != RouteNames.whoIsWatching &&
+          path != RouteNames.manageProfiles &&
+          path != RouteNames.editProfile) {
         return RouteNames.whoIsWatching;
       }
       if (_isLoggedIn && isAuthRoute &&

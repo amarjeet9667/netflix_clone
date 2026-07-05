@@ -13,6 +13,7 @@ import 'package:netflix_clone/core/dummy/dummy_data.dart';
 import 'package:netflix_clone/features/home/domain/entities/banner_entity.dart';
 import 'package:netflix_clone/features/home/domain/entities/home_section_entity.dart';
 import '../bloc/home_bloc.dart';
+import 'package:netflix_clone/features/watchlist/presentation/bloc/watchlist_bloc.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,7 +29,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // ✅ Fixed: trigger BLoC load on init instead of reading dummy data directly
-    context.read<HomeBloc>().add( LoadHomeDataEvent());
+    context.read<HomeBloc>().add(LoadHomeDataEvent());
+    // Pre-load watchlist so My List badge/state is ready
+    context.read<WatchlistBloc>().add(const WatchlistFetchEvent());
   }
 
   @override

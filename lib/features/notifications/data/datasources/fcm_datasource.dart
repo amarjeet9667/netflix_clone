@@ -47,7 +47,7 @@ class FCMDataSourceImpl implements FCMDataSource {
     _seed();
     final idx = _cache.indexWhere((n) => n.id == notificationId);
     if (idx == -1) throw ServerException(message: 'Notification not found.');
-    _cache[idx] = _cache[idx].copyWith(isRead: true) as NotificationModel;
+    _cache[idx] = _cache[idx].copyWith(isRead: true);
     // Real impl: await _apiClient.patch(ApiNotificationConstants.markRead(notificationId));
   }
 
@@ -55,7 +55,7 @@ class FCMDataSourceImpl implements FCMDataSource {
   Future<void> markAllAsRead() async {
     _seed();
     for (int i = 0; i < _cache.length; i++) {
-      _cache[i] = _cache[i].copyWith(isRead: true) as NotificationModel;
+      _cache[i] = _cache[i].copyWith(isRead: true);
     }
     // Real impl: await _apiClient.post(ApiNotificationConstants.markAllRead);
   }

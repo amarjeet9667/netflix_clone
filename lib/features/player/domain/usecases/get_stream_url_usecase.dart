@@ -2,7 +2,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:netflix_clone/core/errors/failure.dart';
-import '../entities/playback_entity.dart';
 import '../repositories/player_repository.dart';
 
 class StreamUrlParams extends Equatable {

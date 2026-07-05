@@ -1,5 +1,6 @@
 // lib/features/movies/presentation/pages/movie_detail_page.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:netflix_clone/core/constants/app_colors.dart';
@@ -8,6 +9,8 @@ import 'package:netflix_clone/core/constants/app_strings.dart';
 import 'package:netflix_clone/core/constants/app_text_style.dart';
 import 'package:netflix_clone/core/router/route_names.dart';
 import 'package:netflix_clone/core/dummy/dummy_data.dart';
+import 'package:netflix_clone/features/watchlist/presentation/bloc/watchlist_bloc.dart';
+import 'package:netflix_clone/shared/enums/content_type.dart';
 
 class MovieDetailPage extends StatefulWidget {
   final String movieId;
@@ -19,7 +22,17 @@ class MovieDetailPage extends StatefulWidget {
 class _MovieDetailPageState extends State<MovieDetailPage>
     with SingleTickerProviderStateMixin {
   late final TabController _tabs;
-  bool _inMyList = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabs = TabController(length: 3, vsync: this);
+    // Ensure watchlist is loaded so we know if this item is in My List
+    context.read<WatchlistBloc>().add(const WatchlistFetchEvent());
+  }
+
+  @override
+  void dispose() { _tabs.dispose(); super.dispose(); }
 
   Map<String, dynamic>? get _movie {
     try {
@@ -29,15 +42,6 @@ class _MovieDetailPageState extends State<MovieDetailPage>
       return DummyMovies.movies.first;
     }
   }
-
-  @override
-  void initState() {
-    super.initState();
-    _tabs = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() { _tabs.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
@@ -231,29 +235,40 @@ class _MovieDetailPageState extends State<MovieDetailPage>
                   const SizedBox(height: AppSizes.spaceXL),
 
                   // Action icons row
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _ActionIcon(
-                        icon:    _inMyList
-                            ? Icons.check
-                            : Icons.add,
-                        label:   _inMyList
-                            ? AppStrings.btnRemoveList
-                            : AppStrings.btnAddToList,
-                        onTap: () => setState(() => _inMyList = !_inMyList),
-                      ),
-                      _ActionIcon(
-                        icon:  Icons.thumb_up_outlined,
-                        label: AppStrings.btnRate,
-                        onTap: () {},
-                      ),
-                      _ActionIcon(
-                        icon:  Icons.share_outlined,
-                        label: AppStrings.btnShare,
-                        onTap: () {},
-                      ),
-                    ],
+                  BlocBuilder<WatchlistBloc, WatchlistState>(
+                    builder: (context, wState) {
+                      final myList = wState is WatchlistLoaded
+                          ? wState.myList
+                          : wState is WatchlistItemToggled
+                              ? wState.myList
+                              : [];
+                      final inList = myList.any((w) => w.contentId == widget.movieId);
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _ActionIcon(
+                            icon:    inList ? Icons.check : Icons.add,
+                            label:   inList ? AppStrings.btnRemoveList : AppStrings.btnAddToList,
+                            onTap: () => context.read<WatchlistBloc>().add(
+                              WatchlistToggleEvent(
+                                contentId:   widget.movieId,
+                                contentType: ContentType.movie,
+                              ),
+                            ),
+                          ),
+                          _ActionIcon(
+                            icon:  Icons.thumb_up_outlined,
+                            label: AppStrings.btnRate,
+                            onTap: () {},
+                          ),
+                          _ActionIcon(
+                            icon:  Icons.share_outlined,
+                            label: AppStrings.btnShare,
+                            onTap: () {},
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: AppSizes.spaceXL),
 

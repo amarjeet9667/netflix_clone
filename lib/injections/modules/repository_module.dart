@@ -32,6 +32,7 @@ import 'package:netflix_clone/features/tv_shows/domain/repositories/tvshow_repos
 
 // ── Search ───────────────────────────────────────────────────
 import 'package:netflix_clone/features/search/data/datasources/search_remote_datasource.dart';
+import 'package:netflix_clone/features/search/data/datasources/search_local_datasource.dart';
 import 'package:netflix_clone/features/search/data/repositories/search_repository_impl.dart';
 import 'package:netflix_clone/features/search/domain/repositories/search_repository.dart';
 
@@ -106,6 +107,9 @@ class RepositoryModule {
     sl.registerLazySingleton<SearchRemoteDataSource>(
       () => SearchRemoteDataSourceImpl(sl<ApiClient>()),
     );
+    sl.registerLazySingleton<SearchLocalDataSource>(
+      () => SearchLocalDataSourceImpl(),
+    );
 
     // User
     sl.registerLazySingleton<UserRemoteDataSource>(
@@ -174,6 +178,7 @@ class RepositoryModule {
     sl.registerLazySingleton<SearchRepository>(
       () => SearchRepositoryImpl(
         remoteDataSource: sl<SearchRemoteDataSource>(),
+        localDataSource:  sl<SearchLocalDataSource>(),
         networkInfo:      sl<NetworkInfo>(),
       ),
     );

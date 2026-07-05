@@ -36,6 +36,8 @@ import 'package:netflix_clone/features/search/presentation/bloc/search_bloc.dart
 import 'package:netflix_clone/features/user/domain/usecases/get_profile_usecase.dart';
 import 'package:netflix_clone/features/user/domain/usecases/update_profile_usecase.dart';
 import 'package:netflix_clone/features/user/domain/usecases/switch_profile_usecase.dart';
+import 'package:netflix_clone/features/user/domain/usecases/create_profile_usecase.dart';
+import 'package:netflix_clone/features/user/domain/usecases/delete_profile_usecase.dart';
 import 'package:netflix_clone/features/user/presentation/bloc/profile_bloc.dart';
 
 import 'package:netflix_clone/features/watchlist/domain/usecases/toggle_watchlist_usecase.dart';
@@ -112,6 +114,8 @@ class BlocModule {
         getProfile:     sl<GetProfileUseCase>(),
         updateProfile:  sl<UpdateProfileUseCase>(),
         switchProfile:  sl<SwitchProfileUseCase>(),
+        createProfile:  sl<CreateProfileUseCase>(),
+        deleteProfile:  sl<DeleteProfileUseCase>(),
       ),
     );
 

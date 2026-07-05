@@ -1,8 +1,5 @@
 // lib/features/downloads/data/datasources/download_local_datasource.dart
-import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
-import 'package:netflix_clone/core/constants/app_constants.dart';
 import 'package:netflix_clone/core/dummy/dummy_data.dart';
 import 'package:netflix_clone/core/errors/exception.dart';
 import '../models/download_model.dart';

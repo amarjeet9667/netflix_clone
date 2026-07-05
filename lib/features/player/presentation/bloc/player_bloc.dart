@@ -38,6 +38,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     on<PlayerSkipIntroEvent>(_onSkipIntro);
     on<PlayerNextEpisodeEvent>(_onNextEpisode);
     on<PlayerDisposeEvent>(_onDispose);
+    on<PlayerAutoHideControlsEvent>(_onAutoHideControls);
   }
 
   PlayerReady? get _ready =>
@@ -248,12 +249,7 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     _controlsTimer?.cancel();
     _controlsTimer = Timer(
       const Duration(seconds: 3),
-      () {
-        final r = _ready;
-        if (r != null && r.isPlaying && r.showControls) {
-          emit(r.copyWith(showControls: false));
-        }
-      },
+      () => add(const PlayerAutoHideControlsEvent()),
     );
   }
 
@@ -275,9 +271,16 @@ class PlayerBloc extends Bloc<PlayerEvent, PlayerState> {
     );
   }
 
-  // Expose emit for timer callbacks
-  void emit(PlayerState state) {
-    if (!isClosed) super.emit(state);
+
+  // ── Auto-hide controls (internal timer event) ────────────
+  void _onAutoHideControls(
+    PlayerAutoHideControlsEvent event,
+    Emitter<PlayerState> emit,
+  ) {
+    final r = _ready;
+    if (r != null && r.isPlaying && r.showControls) {
+      emit(r.copyWith(showControls: false));
+    }
   }
 
   @override

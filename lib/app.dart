@@ -87,9 +87,31 @@ class NetflixApp extends StatelessWidget {
           create: (_) => sl<ThemeCubit>(),
         ),
       ],
-      child: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (context, themeState) {
-          return MaterialApp.router(
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is AuthAuthenticated) {
+                AppRouter.setLoggedIn(true);
+              } else if (state is AuthUnauthenticated) {
+                AppRouter.setLoggedIn(false);
+                AppRouter.setProfilePicked(false);
+              }
+            },
+          ),
+          BlocListener<ProfileBloc, ProfileState>(
+            listener: (context, state) {
+              if (state is ProfileActive) {
+                AppRouter.setProfilePicked(true);
+              } else if (state is ProfileInitial || state is ProfileListLoaded || state is ProfileDeleted) {
+                AppRouter.setProfilePicked(false);
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<ThemeCubit, ThemeState>(
+          builder: (context, themeState) {
+            return MaterialApp.router(
             // ── App identity ──────────────────────────────
             title: AppConfig.appName,
             debugShowCheckedModeBanner: AppConfig.showDebugBanner,
@@ -104,6 +126,7 @@ class NetflixApp extends StatelessWidget {
           );
         },
       ),
+    ),
     );
   }
 }

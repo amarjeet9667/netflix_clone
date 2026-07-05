@@ -108,3 +108,8 @@ class PlayerNextEpisodeEvent extends PlayerEvent {
 class PlayerDisposeEvent extends PlayerEvent {
   const PlayerDisposeEvent();
 }
+
+/// Internal: timer fires to auto-hide controls overlay
+class PlayerAutoHideControlsEvent extends PlayerEvent {
+  const PlayerAutoHideControlsEvent();
+}

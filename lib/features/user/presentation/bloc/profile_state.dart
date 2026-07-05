@@ -25,12 +25,9 @@ class ProfileListLoaded extends ProfileState {
 
 /// A profile has been selected — app is ready to show content
 class ProfileActive extends ProfileState {
-  final ProfileEntity       activeProfile;
+  final ProfileEntity activeProfile;
   final List<ProfileEntity> allProfiles;
-  const ProfileActive({
-    required this.activeProfile,
-    required this.allProfiles,
-  });
+  const ProfileActive({required this.activeProfile, required this.allProfiles});
   @override
   List<Object?> get props => [activeProfile, allProfiles];
 }
@@ -45,12 +42,9 @@ class ProfileSaved extends ProfileState {
 
 /// Profile deleted successfully
 class ProfileDeleted extends ProfileState {
-  final String            deletedId;
+  final String deletedId;
   final List<ProfileEntity> remaining;
-  const ProfileDeleted({
-    required this.deletedId,
-    required this.remaining,
-  });
+  const ProfileDeleted({required this.deletedId, required this.remaining});
   @override
   List<Object?> get props => [deletedId, remaining];
 }
