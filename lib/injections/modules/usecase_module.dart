@@ -65,6 +65,8 @@ import 'package:netflix_clone/features/player/domain/repositories/player_reposit
 import 'package:netflix_clone/features/player/domain/usecases/get_stream_url_usecase.dart';
 import 'package:netflix_clone/features/player/domain/usecases/save_watch_progress_usecase.dart';
 import 'package:netflix_clone/features/player/domain/usecases/get_subtitles_usecase.dart';
+import 'package:netflix_clone/features/user/domain/usecases/create_profile_usecase.dart';
+import 'package:netflix_clone/features/user/domain/usecases/delete_profile_usecase.dart';
 
 class UsecaseModule {
   UsecaseModule._();
@@ -77,46 +79,80 @@ class UsecaseModule {
     sl.registerLazySingleton(() => GetCurrentUserUseCase(sl<AuthRepository>()));
 
     // ── Home ───────────────────────────────────────────────
-    sl.registerLazySingleton(() => GetFeaturedBannersUseCase(sl<HomeRepository>()));
-    sl.registerLazySingleton(() => GetHomeSectionsUseCase(sl<HomeRepository>()));
+    sl.registerLazySingleton(
+      () => GetFeaturedBannersUseCase(sl<HomeRepository>()),
+    );
+    sl.registerLazySingleton(
+      () => GetHomeSectionsUseCase(sl<HomeRepository>()),
+    );
 
     // ── Movies ─────────────────────────────────────────────
-    sl.registerLazySingleton(() => GetTrendingMoviesUseCase(sl<MovieRepository>()));
-    sl.registerLazySingleton(() => GetMovieDetailUseCase(sl<MovieRepository>()));
-    sl.registerLazySingleton(() => GetSimilarMoviesUseCase(sl<MovieRepository>()));
+    sl.registerLazySingleton(
+      () => GetTrendingMoviesUseCase(sl<MovieRepository>()),
+    );
+    sl.registerLazySingleton(
+      () => GetMovieDetailUseCase(sl<MovieRepository>()),
+    );
+    sl.registerLazySingleton(
+      () => GetSimilarMoviesUseCase(sl<MovieRepository>()),
+    );
     sl.registerLazySingleton(() => SearchMoviesUseCase(sl<MovieRepository>()));
 
     // ── TV Shows ───────────────────────────────────────────
     sl.registerLazySingleton(() => GetTVShowsUseCase(sl<TVShowRepository>()));
-    sl.registerLazySingleton(() => GetSeasonDetailUseCase(sl<TVShowRepository>()));
+    sl.registerLazySingleton(
+      () => GetSeasonDetailUseCase(sl<TVShowRepository>()),
+    );
     sl.registerLazySingleton(() => GetEpisodesUseCase(sl<TVShowRepository>()));
 
     // ── Search ─────────────────────────────────────────────
-    sl.registerLazySingleton(() => SearchContentUseCase(sl<SearchRepository>()));
+    sl.registerLazySingleton(
+      () => SearchContentUseCase(sl<SearchRepository>()),
+    );
     sl.registerLazySingleton(() => GetGenreListUseCase(sl<SearchRepository>()));
 
     // ── User ───────────────────────────────────────────────
     sl.registerLazySingleton(() => GetProfileUseCase(sl<UserRepository>()));
     sl.registerLazySingleton(() => UpdateProfileUseCase(sl<UserRepository>()));
     sl.registerLazySingleton(() => SwitchProfileUseCase(sl<UserRepository>()));
-    sl.registerLazySingleton(() => GetSubscriptionUseCase(sl<UserRepository>()));
+
+    sl.registerLazySingleton(() => CreateProfileUseCase(sl<UserRepository>()));
+    sl.registerLazySingleton(() => DeleteProfileUseCase(sl<UserRepository>()));
+
+    sl.registerLazySingleton(
+      () => GetSubscriptionUseCase(sl<UserRepository>()),
+    );
 
     // ── Watchlist ──────────────────────────────────────────
-    sl.registerLazySingleton(() => ToggleWatchlistUseCase(sl<WatchlistRepository>()));
+    sl.registerLazySingleton(
+      () => ToggleWatchlistUseCase(sl<WatchlistRepository>()),
+    );
     sl.registerLazySingleton(() => GetMyListUseCase(sl<WatchlistRepository>()));
-    sl.registerLazySingleton(() => GetContinueWatchingUseCase(sl<WatchlistRepository>()));
+    sl.registerLazySingleton(
+      () => GetContinueWatchingUseCase(sl<WatchlistRepository>()),
+    );
 
     // ── Downloads ──────────────────────────────────────────
-    sl.registerLazySingleton(() => StartDownloadUseCase(sl<DownloadRepository>()));
-    sl.registerLazySingleton(() => CancelDownloadUseCase(sl<DownloadRepository>()));
-    sl.registerLazySingleton(() => GetDownloadsUseCase(sl<DownloadRepository>()));
+    sl.registerLazySingleton(
+      () => StartDownloadUseCase(sl<DownloadRepository>()),
+    );
+    sl.registerLazySingleton(
+      () => CancelDownloadUseCase(sl<DownloadRepository>()),
+    );
+    sl.registerLazySingleton(
+      () => GetDownloadsUseCase(sl<DownloadRepository>()),
+    );
 
     // ── Notifications ──────────────────────────────────────
-    sl.registerLazySingleton(() => GetNotificationsUseCase(sl<NotificationRepository>()));
+    sl.registerLazySingleton(
+      () => GetNotificationsUseCase(sl<NotificationRepository>()),
+    );
 
     // ── Player ─────────────────────────────────────────────
     sl.registerLazySingleton(() => GetStreamUrlUseCase(sl<PlayerRepository>()));
-    sl.registerLazySingleton(() => SaveWatchProgressUseCase(sl<PlayerRepository>()));
+    sl.registerLazySingleton(
+      () => SaveWatchProgressUseCase(sl<PlayerRepository>()),
+    );
     sl.registerLazySingleton(() => GetSubtitlesUseCase(sl<PlayerRepository>()));
   }
 }

@@ -63,6 +63,7 @@ import 'package:netflix_clone/shared/cubit/bottom_nav_cubit.dart';
 import 'package:netflix_clone/shared/cubit/theme_cubit.dart';
 import 'package:netflix_clone/shared/cubit/language_cubit.dart';
 
+
 class BlocModule {
   BlocModule._();
 

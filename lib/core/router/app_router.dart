@@ -45,11 +45,11 @@ class AppRouter {
   AppRouter._();
 
   // Simple in-memory auth state — replace with AuthBloc stream
-  static bool _isLoggedIn       = false;
+  static bool _isLoggedIn = false;
   static bool _hasPickedProfile = false;
 
-  static void setLoggedIn(bool v)       => _isLoggedIn = v;
-  static void setProfilePicked(bool v)  => _hasPickedProfile = v;
+  static void setLoggedIn(bool v) => _isLoggedIn = v;
+  static void setProfilePicked(bool v) => _hasPickedProfile = v;
 
   static final GoRouter router = GoRouter(
     initialLocation: RouteNames.splash,
@@ -59,21 +59,23 @@ class AppRouter {
     redirect: (BuildContext context, GoRouterState state) {
       final path = state.matchedLocation;
 
-      final isAuthRoute = path == RouteNames.login     ||
-                          path == RouteNames.register  ||
-                          path == RouteNames.onboarding||
-                          path == RouteNames.splash    ||
-                          path == RouteNames.forgotPass;
+      final isAuthRoute =
+          path == RouteNames.login ||
+          path == RouteNames.register ||
+          path == RouteNames.onboarding ||
+          path == RouteNames.splash ||
+          path == RouteNames.forgotPass;
 
       if (!_isLoggedIn && !isAuthRoute) return RouteNames.login;
-      if (_isLoggedIn && !_hasPickedProfile &&
+      if (_isLoggedIn &&
+          !_hasPickedProfile &&
           path != RouteNames.whoIsWatching &&
           path != RouteNames.manageProfiles &&
           path != RouteNames.editProfile) {
         return RouteNames.whoIsWatching;
       }
-      if (_isLoggedIn && isAuthRoute &&
-          path != RouteNames.splash) return RouteNames.home;
+      if (_isLoggedIn && isAuthRoute && path != RouteNames.splash)
+        return RouteNames.home;
 
       return null; // no redirect
     },
@@ -83,10 +85,8 @@ class AppRouter {
       GoRoute(
         path: RouteNames.splash,
         name: 'splash',
-        pageBuilder: (context, state) => RouterTransitions.fade(
-          state: state,
-          child: const SplashPage(),
-        ),
+        pageBuilder: (context, state) =>
+            RouterTransitions.fade(state: state, child: const SplashPage()),
       ),
 
       // ── Onboarding ─────────────────────────────────────
@@ -103,18 +103,14 @@ class AppRouter {
       GoRoute(
         path: RouteNames.login,
         name: 'login',
-        pageBuilder: (context, state) => RouterTransitions.fade(
-          state: state,
-          child: const LoginPage(),
-        ),
+        pageBuilder: (context, state) =>
+            RouterTransitions.fade(state: state, child: const LoginPage()),
       ),
       GoRoute(
         path: RouteNames.register,
         name: 'register',
-        pageBuilder: (context, state) => RouterTransitions.slide(
-          state: state,
-          child: const RegisterPage(),
-        ),
+        pageBuilder: (context, state) =>
+            RouterTransitions.slide(state: state, child: const RegisterPage()),
       ),
       GoRoute(
         path: RouteNames.forgotPass,
@@ -228,7 +224,7 @@ class AppRouter {
             path: 'season/:seasonNumber',
             name: 'seasonDetail',
             pageBuilder: (context, state) {
-              final id     = state.pathParameters['id']!;
+              final id = state.pathParameters['id']!;
               final season = int.parse(state.pathParameters['seasonNumber']!);
               return RouterTransitions.slide(
                 state: state,
@@ -256,26 +252,20 @@ class AppRouter {
       GoRoute(
         path: RouteNames.account,
         name: 'account',
-        pageBuilder: (context, state) => RouterTransitions.slide(
-          state: state,
-          child: const AccountPage(),
-        ),
+        pageBuilder: (context, state) =>
+            RouterTransitions.slide(state: state, child: const AccountPage()),
       ),
       GoRoute(
         path: RouteNames.settings,
         name: 'settings',
-        pageBuilder: (context, state) => RouterTransitions.slide(
-          state: state,
-          child: const SettingsPage(),
-        ),
+        pageBuilder: (context, state) =>
+            RouterTransitions.slide(state: state, child: const SettingsPage()),
       ),
       GoRoute(
         path: RouteNames.myList,
         name: 'myList',
-        pageBuilder: (context, state) => RouterTransitions.slide(
-          state: state,
-          child: const MyListPage(),
-        ),
+        pageBuilder: (context, state) =>
+            RouterTransitions.slide(state: state, child: const MyListPage()),
       ),
       GoRoute(
         path: RouteNames.notifications,
